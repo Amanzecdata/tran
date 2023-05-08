@@ -9,7 +9,7 @@ cur = conn.cursor()
 print("connection established")
 def query_handler():
     print("Copy records to staging1 table")
-    cur.execute("COPY staging1 FROM '/home/hp/Downloads/final1.csv' DELIMITER ',' CSV HEADER;")
+    cur.execute("COPY staging1 FROM '/home/hp/Downloads/dim1.csv' DELIMITER ',' CSV HEADER;")
 
     print("Inserting into dim1")
     cur.execute("""INSERT INTO dim1 (id, name, subject, marks,  created, 
@@ -30,7 +30,7 @@ def query_handler():
     ON t.id = s.id
     WHERE t.id = s.id AND 
     (t.name <> s.name OR t.subject <> s.subject OR t.marks <> s.marks) 
-    AND t.created >= (SELECT MAX(created) FROM dim1 WHERE t.id = dim1.id);
+    AND t.updated > (SELECT MAX(created) FROM dim1 WHERE t.id = dim1.id);
     """)
 
     print(" updating updated time and is_active status in dim1 ")
@@ -49,7 +49,7 @@ def query_handler():
     WHERE NOT EXISTS (SELECT 1 FROM staging1 WHERE staging1.id = dim1.id);
     """)
 
-    print(" Inserting new record into final from staging ")
+    print("Inserting new record into final from staging ")
     cur.execute(""" INSERT INTO final1 SELECT s.* FROM staging1 s
     LEFT JOIN final1 f 
     on s.id = f.id

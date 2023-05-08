@@ -9,7 +9,7 @@ cur = conn.cursor()
 print("connection established")
 def query_handler():
     print("Copy records to staging table")
-    cur.execute("COPY staging2 FROM '/home/hp/Downloads/final2.csv' DELIMITER ',' CSV HEADER;")
+    cur.execute("COPY staging2 FROM '/home/hp/Downloads/dim2.csv' DELIMITER ',' CSV HEADER;")
 
     print("Inserting into dim2")
     cur.execute("""INSERT INTO dim2 (id, tenth_per, twelth_per, UG_per, PG_per, created, 
@@ -30,7 +30,7 @@ def query_handler():
     ON t.id = s.id
     WHERE t.id = s.id AND 
     (t.tenth_per <> s.tenth_per OR t.twelth_per <> s.twelth_per OR t.UG_per <> s.UG_per OR 
-    t.PG_per <> s.PG_per) AND t.created >= (SELECT MAX(created) FROM dim2 WHERE t.id = dim2.id);
+    t.PG_per <> s.PG_per) AND t.updated > (SELECT MAX(created) FROM dim2 WHERE t.id = dim2.id);
     """)
 
     print(" updating updated time and is-active status in dim2 ")
