@@ -19,20 +19,22 @@ class Load_CSVData:
 
     def get_load_data_csv(self,filepath):                                     
         try:
-            cur.execute(f"""COPY trips_stage2 FROM {filepath} DELIMITER ',' CSV HEADER;""")
+            cur.execute(f"""
+            SET datestyle = 'ISO, MDY';
+            COPY trips_stage2 FROM '{filepath}' DELIMITER ',' CSV HEADER;""")
             conn.commit()
         except Exception as err:
             print(err)
             traceback.print_exc()
             conn.rollback()
-        finally:
-            cur.close()
-            conn.close()
-# my_obj = Load_CSVData('amandb', 'aman', 12345, 'localhost', 5432)
-# for i in range(15):
-#     filepath = '/home/hp/Desktop/chintu/tran/trips_{:02d}.csv'.format(i)
-#     my_obj.get_load_data_csv(filepath) 
 
+my_obj = Load_CSVData('amandb', 'aman', 12345, 'localhost', 5432)
+for i in range(15):
+    filepath = '/home/hp/Desktop/chintu/tran/trips_{:02d}.csv'.format(i)
+    my_obj.get_load_data_csv(filepath) 
+        
+cur.close()
+conn.close()
 
 
 

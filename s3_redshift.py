@@ -52,7 +52,7 @@ event = {
 context = {}
 print(lambda_handler(event, context))
 
-# export AWS_ACCESS_KEY_ID='AKIAWODHCU5CUCUKSTBX'
+# export AWS_ACCESS_KEY_id='AKIAWODHCU5CUCUKSTBX'
 # export AWS_SECRET_ACCESS_KEY='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'
 
 

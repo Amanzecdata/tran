@@ -4,7 +4,6 @@ import psycopg2
 import traceback
 from datetime import datetime
 
-
 class Load_CSVData:
     global conn,cur
     print("Establishing Connection")
@@ -21,24 +20,10 @@ class Load_CSVData:
 
     def get_load_data_csv(self,filepath):                                     
         try:
-            # date_string = '01/06/2023 09:00:00 AM'
-            # formatted_date = datetime.strptime(date_string, '%m/%d/%Y %I:%M:%S %p').strftime('%Y-%m-%d %H:%M:%S')
-
             cur.execute(f"""
                SET datestyle = 'ISO, MDY';
-               COPY trips_stage2 (trip_id , trip_start_timestamp , trip_end_timestamp , 
-			   trip_seconds ,trip_miles , percent_time_chicago , percent_distance_chicago , 
-			   pickup_census_tract , dropoff_census_tract ,pickup_community_area , 
-			   dropoff_community_area , fare , tip , additional_charges , 
-			   trip_total ,shared_trip_authorized , shared_trip_match , 
-			   trips_pooled , pickup_centroid_latitude , 
-			   pickup_centroid_longitude , pickup_centroid_location , 
-			   dropoff_centroid_latitude , dropoff_centroid_longitude ,
-			   dropoff_centroid_location) 
-               FROM '{filepath}'
-               WITH (FORMAT CSV, DELIMITER ',', HEADER);
+               COPY trips_stagee FROM '{filepath}' DELIMITER ',' CSV HEADER;
             """) 
-
             conn.commit()
             self.insert_trip_dim()
         except Exception as err:
@@ -124,5 +109,5 @@ class Load_CSVData:
         
 
 my_obj = Load_CSVData('amandb', 'aman', 12345, 'localhost', 5432)
-file_path = '/home/hp/Desktop/chintu/tran/top_100.csv'
+file_path = '/home/hp/Desktop/chintu/tran/Transportation_Network_Providers_Trips_2023.csv'
 my_obj.get_load_data_csv(file_path)
