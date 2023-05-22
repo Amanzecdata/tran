@@ -19,11 +19,6 @@ class Load_APidata:
     cur = conn.cursor()
     print("Connection established")
 
-    def get_data(self):
-        response = requests.get(self.url)
-        print("Data get successfully")
-        return response.json()
-
     def __init__(self, url, dbprovider, dbname, user, password, host, port):
         self.url = url
         self.dbname = dbname
@@ -32,12 +27,9 @@ class Load_APidata:
         self.host = host
         self.port = port
         self.dbprovider = dbprovider
-        self.data = self.get_data()
-        self.insert_trip_stage(self.data)
+        self.insert_trip_stage()
 
-    
-
-    def insert_trip_stage(self, data):
+    def insert_trip_stage(self):
         try:
             # Insert data into table
             db_string = f"{self.dbprovider}://{self.user}:{self.password}@{self.host}:{self.port}/{self.dbname}"
