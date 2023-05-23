@@ -55,7 +55,7 @@ class trips_config:
                 if row['final_column_values'] != "" : self.final_column_values.append(row['final_column_values'])
                 if row['final_column_names'] != "" : self.final_column_names.append(row['final_column_names'])
         
-        # self.insert_trips_stage()
+        self.insert_trips_stage()
 
     def insert_trips_stage(self):
         try:
