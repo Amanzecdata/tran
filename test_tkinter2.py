@@ -9,11 +9,39 @@ import subprocess
 import speech_recognition as sr
 import os
 import openai
+import time
 
-# Set the parameters for recording
-# duration = 10  # Duration of each recording in seconds
 output_file = "output.wav"  # Output file name and path
 recording_process = None
+start_time = 0
+end_time = 0
+openai.api_key = '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'
+messages = [
+    {"role": "system", "content":"You are a helpful assistance."},
+]
+def ai_reply(message):
+    reply = ""
+    print("ans")
+    try:
+        if message:
+            if message.lower() in ["quit", "bye", "exit"]:
+                print("Ram Ram DADA!!")
+            messages.append({"role": "user", "content":message},)
+            chat = openai.ChatCompletion.create(model = "gpt-3.5-turbo",messages=messages)
+        if chat:
+            print("found ans")
+            reply = chat.choices[0].message.content
+            print(f"ChatGpt : {reply}")
+            # Role=messages[-1]['role']
+            # Question=messages[-1]['content']
+            # Answer=reply
+            messages.append({"role":"assistant", "content":reply})
+            # cur.execute(insert_query,(Role,Question,Answer))
+            # conn.commit()
+    except Exception as err:     
+        # conn.rollback()
+        print("error : ",err)
+    return reply
 
 def start_recording():
     global recording_process
@@ -23,7 +51,7 @@ def start_recording():
     print("Recording done")
 
 def stop_recording():
-    global recording_process
+    global recording_process,end_time,start_time
     print("In stop_recording outside if block :")
     if recording_process is not None:
         print("In stop_recording inside the if block")
@@ -31,42 +59,13 @@ def stop_recording():
         recording_process.terminate()
         recording_process.wait()
         print("Recording stopped, Recording saved to", output_file)
+        start_time = time.time()%60
         # Convert audio to text
         convert_audio_to_text(output_file)
         os.remove("/home/hp/Desktop/chintu/tran/output.wav")
-
-openai.api_key = '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'
-messages = [
-    {"role": "system", "content":"You are a helpful assistance."},
-]
-def ai_reply(message):
-    print("ans")
-    try:
-        if message:
-            if message.lower() in ["quit", "bye", "exit"]:
-                print("Ram Ram DADA!!")
-            messages.append(
-                {"role": "user", "content":message},
-            )
-            chat = openai.ChatCompletion.create(
-                model = "gpt-3.5-turbo",messages=messages
-            )
-        if chat:
-            print("found ans")
-            reply = chat.choices[0].message.content
-            print(f"ChatGpt : {reply}")
-            Role=messages[-1]['role']
-            Question=messages[-1]['content']
-            Answer=reply
-            messages.append({"role":"assistant", "content":reply})
-            # cur.execute(insert_query,(Role,Question,Answer))
-            # conn.commit()
-    except Exception as err:     
-        # conn.rollback()
-        print(err)
-    return reply
-
+        end_time = time.time()%60
 def convert_audio_to_text(audio_file):
+    global start_time,end_time
     try:
         print("convert_audio_to_text")
         r = sr.Recognizer()
@@ -75,14 +74,21 @@ def convert_audio_to_text(audio_file):
             text = r.recognize_google(audio_data)
             print("Converted Text:", text)
             text_entry.insert(tk.END, "Question : "+text+"\n","left_align")
+            gpt_start_time = time.time()
             k = ai_reply(text)
-            text_entry.insert(tk.END, "Answer : "+k+"\n","left_align")
+            gpt_end_time = time.time()
+            gpt_time = gpt_end_time-gpt_start_time
+            text_entry.insert(tk.END, f"Answer : {k}\n","left_align")
+            time_taken = start_time-end_time
+            print("time_taken : ",time_taken)
+            print("gpt_time : ",gpt_time) 
+            text_entry.insert(tk.END, f"Total_time : {time_taken}\n","left_align")
             # text_entry.insert(tk.END, "Question : "+text+"\n","left_align")
     except sr.UnknownValueError as ee:
         print("could not understand")
-        # text_entry.insert(tk.END, "Could not understand audio\n")
+        text_entry.insert(tk.END, "Could not understand audio\n")
     except sr.RequestError as e:
-        # text_entry.insert(tk.END, f"Error: {e}"+"\n")
+        text_entry.insert(tk.END, f"Error: {e}"+"\n")
         print(e)
     except Exception as e:
         print(e)

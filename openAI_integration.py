@@ -1,16 +1,17 @@
 import openai
-import mysql.connector
+import psycopg2
 
-conn = mysql.connector.connect(
+conn = psycopg2.connect(
     host='localhost',
-    user='root',
-    password='root12345',
-    database='amandb'
+    user='aman',
+    password='12345',
+    database='amandb',
+    port=5432
 )
 cur = conn.cursor()
 create_table_query = '''
     CREATE TABLE IF NOT EXISTS chat_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id serial PRIMARY KEY,
     Role VARCHAR(255),
     Question TEXT,
     Answer TEXT
@@ -22,7 +23,7 @@ insert_query = '''
         '''
 cur.execute(create_table_query)
 
-openai.api_key = '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'
+openai.api_key = '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'
 
 messages = [
     {"role": "system", "content":"You are a helpful assistance."},
@@ -32,20 +33,24 @@ while True:
     try:
         message = input("User : ")
         if message:
+            if message.lower() in ["quit", "bye", "exit"]:
+                print("Ram Ram DADA!!")
+                break
             messages.append(
                 {"role": "user", "content":message},
             )
             chat = openai.ChatCompletion.create(
-                model = "gpt-3.5-turbo", max_tokens = 100 , messages=messages
+                model = "gpt-3.5-turbo",messages=messages
             )
-        reply = chat.choices[0].message.content
-        print(f"ChatGpt : {reply}")
-        Role=messages[-1]['role']
-        Question=messages[-1]['content']
-        Answer=reply
-        messages.append({"role":"assistant", "content":reply})
-        cur.execute(insert_query,(Role,Question,Answer))
-        conn.commit()
+        if chat:
+            reply = chat.choices[0].message.content
+            print(f"ChatGpt : {reply}")
+            Role=messages[-1]['role']
+            Question=messages[-1]['content']
+            Answer=reply
+            messages.append({"role":"assistant", "content":reply})
+            cur.execute(insert_query,(Role,Question,Answer))
+            conn.commit()
     except Exception as err:     
         print(err)
         conn.commit()
